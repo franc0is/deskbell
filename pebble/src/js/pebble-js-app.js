@@ -1,5 +1,5 @@
-var deviceId = "";
-var accessToken = "";
+var deviceId = localStorage.getItem("spark_id");
+var accessToken = localStorage.getItem("spark_token");
 
 /**************** Pebble helpers ****************/
 
@@ -28,14 +28,15 @@ Pebble.addEventListener("webviewclosed", function(e) {
   console.log("response : " + e.reponse);
   var options = JSON.parse(decodeURIComponent(e.response));
   accessToken = options.spark_token;
-  console.log("token : " + accessToken);
   deviceId = options.spark_id;
   console.log("id : " + deviceId);
+  console.log("token : " + accessToken);
+  localStorage.setItem("spark_id", deviceId);
+  localStorage.setItem("spark_token", accessToken);
 });
 
 /****************** XHR *************************/
 
-//Spark.publish("channel", agrs) reports that args in int(String args) is 'null' with this method (why?)
 var success = function(json) {
   console.log("Response JSON: " + JSON.stringify(json));
 };
@@ -71,25 +72,6 @@ Pebble.addEventListener("appmessage",
 
     if(valid === true)
     {
-      //Send with XHR
-      // xhrRequest(url, "POST", 
-      //   function(responseText) {
-      //     console.log("Response text: " + responseText);
-
-      //     var json = JSON.parse(responseText);
-
-      //     Pebble.sendAppMessage(
-      //       {"PIN_EVENT":json.return_value},
-      //       function(e) {
-      //         console.log("Pin " + json.return_value + " updated on Pebble");
-      //       },
-      //       function(e) {
-      //         console.log("FAILED to update pin on Pebble!");
-      //       }
-      //     );
-      //   }
-      // );
-
       console.log("ajax, url: " + url);
 
       //Send with jQuery
