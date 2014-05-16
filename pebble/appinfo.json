@@ -14,6 +14,17 @@
     "BUSY": 1
   },
   "resources": {
-    "media": []
+    "media": [
+      {
+        "type": "png",
+        "name": "IMAGE_THUMB_UP",
+        "file": "images/thumbup.png"
+      },
+     {
+        "type": "png",
+        "name": "IMAGE_THUMB_DOWN",
+        "file": "images/thumbdown.png"
+      }
+    ]
   }
 }

@@ -5,6 +5,9 @@
 
 static Window *window;
 static TextLayer *text_layer;
+static ActionBarLayer *action_bar;
+static GBitmap *thumb_up_bitmap;
+static GBitmap *thumb_down_bitmap;
 
 static void select_click_handler(ClickRecognizerRef recognizer, void *context) {
   text_layer_set_text(text_layer, "Select");
@@ -42,16 +45,28 @@ static void window_load(Window *window) {
   text_layer_set_text(text_layer, "Press a button");
   text_layer_set_text_alignment(text_layer, GTextAlignmentCenter);
   layer_add_child(window_layer, text_layer_get_layer(text_layer));
+
+  action_bar = action_bar_layer_create();
+  action_bar_layer_add_to_window(action_bar, window);
+  action_bar_layer_set_click_config_provider(action_bar, click_config_provider);
+
+  action_bar_layer_set_icon(action_bar, BUTTON_ID_UP, thumb_up_bitmap);
+  action_bar_layer_set_icon(action_bar, BUTTON_ID_DOWN, thumb_down_bitmap);
 }
 
 static void window_unload(Window *window) {
   text_layer_destroy(text_layer);
+  action_bar_layer_destroy(action_bar);
+  gbitmap_destroy(thumb_up_bitmap);
+  gbitmap_destroy(thumb_down_bitmap);
 }
 
 static void init(void) {
   app_message_open(32, 32);
+  thumb_up_bitmap = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_THUMB_UP);
+  thumb_down_bitmap = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_THUMB_DOWN);
   window = window_create();
-  window_set_click_config_provider(window, click_config_provider);
+  // window_set_click_config_provider(window, click_config_provider);
   window_set_window_handlers(window, (WindowHandlers) {
     .load = window_load,
     .unload = window_unload,
