@@ -25,6 +25,7 @@ Pebble.addEventListener("showConfiguration", function() {
 Pebble.addEventListener("webviewclosed", function(e) {
   console.log("configuration closed");
   // webview closed
+  console.log("response : " + e.reponse);
   var options = JSON.parse(decodeURIComponent(e.response));
   accessToken = options.spark_token;
   console.log("token : " + accessToken);
@@ -35,34 +36,21 @@ Pebble.addEventListener("webviewclosed", function(e) {
 /****************** XHR *************************/
 
 //Spark.publish("channel", agrs) reports that args in int(String args) is 'null' with this method (why?)
-var xhrRequest = function (url, type, callback) {
-  var xhr = new XMLHttpRequest();
-  xhr.onload =  function () {
-      callback(this.responseText);
-  };
-  xhr.open(type, url);
-  xhr.send();
-};
-
-var importjQuery = function() {
-  var script = document.createElement('script');
-  script.src = 'http://code.jquery.com/jquery-latest.min.js';
-  script.type = 'text/javascript';
-  document.getElementsByTagName('head')[0].appendChild(script);
+var success = function(json) {
+  console.log("Response JSON: " + JSON.stringify(json));
 };
 
 /****************** Main ************************/
 
 Pebble.addEventListener("ready",
   function(e) {
-    importjQuery();
     console.log("Pebble JS ready!");
   }
 );
 
 Pebble.addEventListener("appmessage",
   function(dict) {
-    var url = "https://api.spark.io/v1/devices/" + deviceId + "/on?access_token=" + accessToken;
+    var url = "https://api.spark.io/v1/devices/" + deviceId + "/led?access_token=" + accessToken;
     var busy_coming = "";
     var valid = false;
 
@@ -102,14 +90,14 @@ Pebble.addEventListener("appmessage",
       //   }
       // );
 
-      console.log("ajax");
+      console.log("ajax, url: " + url);
 
       //Send with jQuery
-      $.ajax({
-        type: "POST",
+      ajax({
+        method: "post",
         url: url,
-        data: {"args":busy_coming},
-        dataType: "json"
+        data: {"args": busy_coming},
+        type: "json"
       });
     }
   }
