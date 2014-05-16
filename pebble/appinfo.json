@@ -5,11 +5,13 @@
   "companyName": "MakeAwesomeHappen",
   "versionCode": 1,
   "versionLabel": "1.0.0",
+  "capabilities": [ "configurable" ],
   "watchapp": {
     "watchface": false
   },
   "appKeys": {
-    "dummy": 0
+    "COMING": 0,
+    "BUSY": 1
   },
   "resources": {
     "media": []

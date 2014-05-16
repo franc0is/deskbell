@@ -1,5 +1,8 @@
 #include <pebble.h>
 
+#define COMING_KEY 0
+#define BUSY_KEY 1
+
 static Window *window;
 static TextLayer *text_layer;
 
@@ -9,10 +12,20 @@ static void select_click_handler(ClickRecognizerRef recognizer, void *context) {
 
 static void up_click_handler(ClickRecognizerRef recognizer, void *context) {
   text_layer_set_text(text_layer, "Up");
+  DictionaryIterator *iter;
+  app_message_outbox_begin(&iter);
+  Tuplet value = TupletInteger(BUSY_KEY, 1);
+  dict_write_tuplet(iter, &value);
+  app_message_outbox_send();
 }
 
 static void down_click_handler(ClickRecognizerRef recognizer, void *context) {
   text_layer_set_text(text_layer, "Down");
+  DictionaryIterator *iter;
+  app_message_outbox_begin(&iter);
+  Tuplet value = TupletInteger(COMING_KEY, 1);
+  dict_write_tuplet(iter, &value);
+  app_message_outbox_send();
 }
 
 static void click_config_provider(void *context) {
@@ -36,6 +49,7 @@ static void window_unload(Window *window) {
 }
 
 static void init(void) {
+  app_message_open(32, 32);
   window = window_create();
   window_set_click_config_provider(window, click_config_provider);
   window_set_window_handlers(window, (WindowHandlers) {

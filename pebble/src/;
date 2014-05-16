@@ -53,6 +53,20 @@ var importjQuery = function() {
 
 /****************** Main ************************/
 
+var success = function(json) {
+  console.log("Response JSON: " + JSON.stringify(json));
+
+  Pebble.sendAppMessage(
+    {"PIN_EVENT":json.return_value},
+    function(e) {
+      console.log("Pin " + json.return_value + " updated on Pebble");
+    },
+    function(e) {
+      console.log("FAILED to update pin on Pebble!");
+    }
+  );
+};
+
 Pebble.addEventListener("ready",
   function(e) {
     importjQuery();
@@ -63,16 +77,27 @@ Pebble.addEventListener("ready",
 Pebble.addEventListener("appmessage",
   function(dict) {
     var url = "https://api.spark.io/v1/devices/" + deviceId + "/on?access_token=" + accessToken;
-    var busy_coming = "";
+    var pin = "";
     var valid = false;
 
-    if(hasKey(dict, "COMING")) {
-      busy_coming = "coming";
+    //On request?
+    if(hasKey(dict, "PIN_ON")) {
+      pin = getValue(dict, "PIN_ON");
+
+      //Construct URL
+
       valid = true;
     }
 
-    else if(hasKey(dict, "BUSY")) {
-      busy_coming = "busy";
+    //Off request?
+    else if(hasKey(dict, "PIN_OFF")) {
+      console.log("Request to turn pin " + getValue(dict, "PIN_OFF") + " OFF received.");
+
+      pin = getValue(dict, "PIN_OFF");
+
+      //Construct URL
+      url = "https://api.spark.io/v1/devices/" + deviceId + "/off?access_token=" + accessToken;
+
       valid = true;
     }
 
@@ -108,7 +133,8 @@ Pebble.addEventListener("appmessage",
       $.ajax({
         type: "POST",
         url: url,
-        data: {"args":busy_coming},
+        data: {"args":pin},
+        success: success,
         dataType: "json"
       });
     }
