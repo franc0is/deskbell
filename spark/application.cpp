@@ -1,6 +1,6 @@
 #include "rest_client.h"
 
-#define SERIAL_DEBUG // define or comment out
+//#define SERIAL_DEBUG // define or comment out
 
 #define HOSTNAME "technobly.com"
 uint32_t startTime = 0;
@@ -9,6 +9,8 @@ bool BUTTON_PRESSED = false;
 uint8_t button_cnt = 0; // used to count up debounce time
 int button_state = 0;
 bool s = 0; // output state of D7 led
+bool red_led = 0;
+bool green_led = 0;
 
 RestClient client = RestClient(HOSTNAME);
 String response;
@@ -23,6 +25,13 @@ void setup() {
 #endif
     
   pinMode(D7,OUTPUT);
+  pinMode(A0,OUTPUT);
+  pinMode(A1,OUTPUT);
+  digitalWrite(A0,LOW);
+  digitalWrite(A1,LOW);
+  
+  //https://api.spark.io/v1/devices/53ff6a065067544838360587/led?access_token=0e1046822854d1a108bbe9c2ee54c1f63dc0b710&args=busy
+  Spark.function("led",updateLED);
 }
 
 void loop() {
@@ -33,7 +42,7 @@ void loop() {
     //Spark.publish("office-door-bell", "ding", 20);
         
     // Push notify this biatch.
-    pushNotify("COOL TITLE","This is the message!");
+    pushNotify("OFFICE","Hey Brett are you there?");
         
     // Do some flashy stuff
     /*
@@ -53,6 +62,19 @@ void loop() {
     startTime = millis();
     s = !s;
     digitalWrite(D7,s);
+  }
+  
+  if(red_led == 1) {
+      digitalWrite(A1,HIGH);
+      delay(500);
+      digitalWrite(A1,LOW);
+      red_led = 0;
+  }
+  if(green_led == 1) {
+      digitalWrite(A0,HIGH);
+      delay(500);
+      digitalWrite(A0,LOW);
+      green_led = 0;
   }
 }
 
@@ -109,4 +131,15 @@ void pushNotify(const char* title, const char* message){
 #endif
 
   delay(1000);
+}
+
+int updateLED(String cmd) {
+    //int val = cmd.toInt();
+    if(cmd == "coming") {
+        green_led = 1;
+    }
+    else if(cmd == "busy") {
+        red_led = 1;
+    }
+    return 200;
 }
