@@ -1,3 +1,6 @@
+// This #include statement was automatically added by the Spark IDE.
+#include "LiquidCrystalSPI.h"
+
 #include "rest_client.h"
 
 //#define SERIAL_DEBUG // define or comment out
@@ -11,9 +14,16 @@ int button_state = 0;
 bool s = 0; // output state of D7 led
 bool red_led = 0;
 bool green_led = 0;
+char lcd_message[32];
+bool update_lcd = 0;
 
 RestClient client = RestClient(HOSTNAME);
 String response;
+
+// Create an instance of the library for SOFTWARE SPI mode (define SS "latch" pin, SCLK pin, SDAT pin)
+// These can be ANY of the A0 - A7 or D0 - D7 pins. 
+// Just make sure you don't redefine them as some other peripheral later in your code.
+LiquidCrystal lcd(D2, D3, D4);
 
 void setup() {
   startTime = millis(); // capture the time that our app starts
@@ -23,6 +33,13 @@ void setup() {
   Serial.begin(9600); // Make sure serial terminal is closed before powering up Core
   while(!Serial.available()) SPARK_WLAN_Loop(); // Open serial terminal now, and press ENTER
 #endif
+
+  // initialize the SPI ( Must call this before begin()! )
+  lcd.initSPI();
+  // set up the LCD's number of columns and rows: 
+  lcd.begin(16, 2);
+  // Print a message to the LCD.
+  lcd.print("Pebble Bell!");
     
   pinMode(D7,OUTPUT);
   pinMode(A0,OUTPUT);
@@ -31,7 +48,7 @@ void setup() {
   digitalWrite(A1,LOW);
   
   //https://api.spark.io/v1/devices/53ff6a065067544838360587/led?access_token=0e1046822854d1a108bbe9c2ee54c1f63dc0b710&args=busy
-  Spark.function("led",updateLED);
+  Spark.function("msg",updateBell);
 }
 
 void loop() {
@@ -64,17 +81,27 @@ void loop() {
     digitalWrite(D7,s);
   }
   
-  if(red_led == 1) {
-      digitalWrite(A1,HIGH);
-      delay(500);
-      digitalWrite(A1,LOW);
-      red_led = 0;
-  }
-  if(green_led == 1) {
-      digitalWrite(A0,HIGH);
-      delay(500);
-      digitalWrite(A0,LOW);
-      green_led = 0;
+  if(update_lcd == 1) {
+    lcd.setCursor(0, 1);
+    lcd.print("                ");
+    lcd.setCursor(0, 1);
+    lcd.print(lcd_message);
+    
+    if(green_led == 1) {
+        digitalWrite(A0,HIGH);
+        green_led = 0;
+    }
+    else if(red_led == 1) {
+        digitalWrite(A1,HIGH);
+        red_led = 0;
+    }
+  
+    delay(2000);
+    lcd.setCursor(0, 1);
+    lcd.print("                ");
+    digitalWrite(A0,LOW);
+    digitalWrite(A1,LOW);
+    update_lcd = 0;
   }
 }
 
@@ -133,13 +160,19 @@ void pushNotify(const char* title, const char* message){
   delay(1000);
 }
 
-int updateLED(String cmd) {
-    //int val = cmd.toInt();
-    if(cmd == "coming") {
-        green_led = 1;
+int updateBell(String cmd) {
+    // Grab the quick command
+    if(cmd.substring(0,1) == "1") {
+      green_led = 1;
     }
-    else if(cmd == "busy") {
-        red_led = 1;
+    else if(cmd.substring(0,1) == "2") {
+      red_led = 1;
     }
+    // Patch up and parse message beginning at second character
+    cmd.replace("%20"," ");
+    cmd.replace("%27","'");
+    const char *cmd_ptr = cmd.c_str();
+    strcpy(lcd_message, cmd_ptr + 1);
+    update_lcd = 1;
     return 200;
 }
