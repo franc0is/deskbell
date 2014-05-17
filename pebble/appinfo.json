@@ -12,7 +12,9 @@
   "appKeys": {
     "COMING": 0,
     "BUSY": 1,
-    "MESSAGE": 2
+    "MESSAGE": 2,
+    "QUERY": 3,
+    "TIMESTR": 4
   },
   "resources": {
     "media": [

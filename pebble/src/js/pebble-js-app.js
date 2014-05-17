@@ -19,7 +19,7 @@ var getValue = function(dict, key) {
 /************** Configuration *******************/
 Pebble.addEventListener("showConfiguration", function() {
   console.log("showing configuration");
-  Pebble.openURL('http://francois-mbp.hq.getpebble.com:8000/configurable.html');
+  Pebble.openURL('http://technobly.com/pebble/config.html');
 });
 
 Pebble.addEventListener("webviewclosed", function(e) {
@@ -51,11 +51,32 @@ Pebble.addEventListener("ready",
 
 Pebble.addEventListener("appmessage",
   function(dict) {
+
     var url = "https://api.spark.io/v1/devices/" + deviceId + "/msg?access_token=" + accessToken;
     var coming_busy = "";
     var msg = "";
 
-    if(hasKey(dict, "COMING")) {
+    if (hasKey(dict, "QUERY")) {
+	var xmlhttp = new XMLHttpRequest();
+	xmlhttp.onreadystatechange = function () {
+	    if (xmlhttp.readyState === 4) {
+		console.log(xmlhttp.responseText);
+		var timestamps = JSON.parse(xmlhttp.responseText);
+		timestamps.reverse();
+		var text = timestamps.join(",");
+		Pebble.sendAppMessage( { "TIMESTR" : text });
+		
+	    }
+	};
+	xmlhttp.setRequestHeader("Referer", "technobly.com");
+	xmlhttp.open('GET', "http://technobly.com/pebble/pushover.php", true);
+
+	xmlhttp.send(null);
+
+      return;
+    }
+
+    if (hasKey(dict, "COMING")) {
       coming_busy = "1";
       msg = "I'm coming now!";
     } else if(hasKey(dict, "BUSY")) {
