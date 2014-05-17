@@ -148,7 +148,7 @@ void pushNotify(const char* title, const char* message){
   client.setHeader(header);
   
   // Push, push, in the George Bush.
-  int statusCode = client.post("/pushover.php", querystring, &response);
+  int statusCode = client.post("/pebble/pushover.php", querystring, &response);
   
 #ifdef SERIAL_DEBUG
   Serial.print("Status code from server: ");

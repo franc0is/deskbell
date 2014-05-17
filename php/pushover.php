@@ -14,7 +14,7 @@ if(!isset($_SERVER['HTTP_REFERER']) || substr_count($_SERVER['HTTP_REFERER'], $_
                 'error' => 'Invalid request'
         )));
 
-$timestamp_log = "pebble/log.txt";
+$timestamp_log = "log.txt";
 if (strtoupper($_SERVER['REQUEST_METHOD'])=='GET') {
   echo (!file_exists($timestamp_log)) ? json_encode("") : json_encode(explode("\n", file_get_contents($timestamp_log))); 
   exit();
@@ -38,7 +38,7 @@ $max_stamps = 5;
 
 date_default_timezone_set('America/Los_Angeles');
 $date = new DateTime();
-$timestr = (file_exists($timestamp_log) ? "\n" : "").$date->format('Y-m-d H:i:s');
+$timestr = (file_exists($timestamp_log) ? "\n" : "").$date->getTimestamp();
 file_put_contents($timestamp_log, $timestr, FILE_APPEND);
 
 $num_stamps = 0;
