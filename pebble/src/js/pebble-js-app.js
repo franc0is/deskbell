@@ -51,36 +51,35 @@ Pebble.addEventListener("ready",
 
 Pebble.addEventListener("appmessage",
   function(dict) {
-    var url = "https://api.spark.io/v1/devices/" + deviceId + "/led?access_token=" + accessToken;
-    var busy_coming = "";
-    var valid = false;
+    var url = ""
+    var coming_busy = "";
+    var  msg = "";
 
     if(hasKey(dict, "COMING")) {
-      busy_coming = "coming";
-      valid = true;
-    }
-
-    else if(hasKey(dict, "BUSY")) {
-      busy_coming = "busy";
-      valid = true;
-    }
-
-    //Invalid
-    else {
+      url = "https://api.spark.io/v1/devices/" + deviceId + "/led?access_token=" + accessToken;
+      coming_busy = "1";
+    } else if(hasKey(dict, "BUSY")) {
+      url = "https://api.spark.io/v1/devices/" + deviceId + "/led?access_token=" + accessToken;
+      coming_busy = "2";
+    } else {
       console.log("Invalid key received!");
+      return;
     }
 
-    if(valid === true)
-    {
-      console.log("ajax, url: " + url);
-
-      //Send with jQuery
-      ajax({
-        method: "post",
-        url: url,
-        data: {"args": busy_coming},
-        type: "json"
-      });
+    if (hasKey(dict, "MESSAGE")) {
+      url = "https://api.spark.io/v1/devices/" + deviceId + "/msg?access_token=" + accessToken;
+      msg = getValue(dict, "MESSAGE");
     }
+
+    var args = coming_busy + msg;
+    console.log("ajax, url: " + url + ", args: " + args);
+
+    //Send with jQuery
+    ajax({
+      method: "post",
+      url: url,
+      data: {"args": args},
+      type: "json"
+    });
   }
 );

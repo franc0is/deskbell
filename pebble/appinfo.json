@@ -11,7 +11,8 @@
   },
   "appKeys": {
     "COMING": 0,
-    "BUSY": 1
+    "BUSY": 1,
+    "MESSAGE": 2
   },
   "resources": {
     "media": [
