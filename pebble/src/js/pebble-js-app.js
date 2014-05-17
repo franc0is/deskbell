@@ -51,23 +51,22 @@ Pebble.addEventListener("ready",
 
 Pebble.addEventListener("appmessage",
   function(dict) {
-    var url = ""
+    var url = "https://api.spark.io/v1/devices/" + deviceId + "/msg?access_token=" + accessToken;
     var coming_busy = "";
-    var  msg = "";
+    var msg = "";
 
     if(hasKey(dict, "COMING")) {
-      url = "https://api.spark.io/v1/devices/" + deviceId + "/led?access_token=" + accessToken;
       coming_busy = "1";
+      msg = "I'm coming now!";
     } else if(hasKey(dict, "BUSY")) {
-      url = "https://api.spark.io/v1/devices/" + deviceId + "/led?access_token=" + accessToken;
       coming_busy = "2";
+      msg = "I'm busy now!";
     } else {
       console.log("Invalid key received!");
       return;
     }
 
     if (hasKey(dict, "MESSAGE")) {
-      url = "https://api.spark.io/v1/devices/" + deviceId + "/msg?access_token=" + accessToken;
       msg = getValue(dict, "MESSAGE");
     }
 

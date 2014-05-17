@@ -12,7 +12,6 @@ static GBitmap *thumb_up_bitmap;
 static GBitmap *thumb_down_bitmap;
 
 /* Strings window state */
-static void menu_select_callback(int index, void *ctx);
 static Window *menu_window;
 static SimpleMenuLayer *menu_layer;
 static char *coming_menu_strings[] = {
@@ -23,7 +22,7 @@ static char *coming_menu_strings[] = {
 static char *busy_menu_strings[] = {
   "OOO",
   "In a meeting",
-  "Get off my lawn"
+  "Off my lawn"
 };
 
 static SimpleMenuItem coming_menu_items[ARRAY_LENGTH(coming_menu_strings)];
