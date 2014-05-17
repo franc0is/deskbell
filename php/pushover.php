@@ -14,6 +14,12 @@ if(!isset($_SERVER['HTTP_REFERER']) || substr_count($_SERVER['HTTP_REFERER'], $_
                 'error' => 'Invalid request'
         )));
 
+$timestamp_log = "pebble/log.txt";
+if (strtoupper($_SERVER['REQUEST_METHOD'])=='GET') {
+  echo (!file_exists($timestamp_log)) ? json_encode("") : json_encode(explode("\n", file_get_contents($timestamp_log))); 
+  exit();
+}
+
 // Build the URL.  Since it's possible to accidentally have an
 // extra / or two in $_SERVER['QUERY_STRING], replace "//" with "/"
 // using str_replace().  This also appends the access token to the URL.
@@ -21,6 +27,44 @@ $url = 'https://api.pushover.net/1/messages.json'.'?token='.TOKEN.'&user='.USER.
 
 echo file_get_contents('php://input');
 echo "\n\n";
+
+//
+// stash the timestamp in a file for a subsequent GET request. (Only logs
+// $max_stamps most recent entries)
+
+//
+// pebble log directory & number of entries to stash
+$max_stamps = 5;
+
+date_default_timezone_set('America/Los_Angeles');
+$date = new DateTime();
+$timestr = (file_exists($timestamp_log) ? "\n" : "").$date->format('Y-m-d H:i:s');
+file_put_contents($timestamp_log, $timestr, FILE_APPEND);
+
+$num_stamps = 0;
+if (file_exists($timestamp_log)) {
+  $timestamps = explode("\n", file_get_contents($timestamp_log));
+  $num_stamps = count($timestamps);
+ }
+
+//echo "There are ".$num_stamps." timestamps<br/>";
+
+$st = ($num_stamps <= $max_stamps) ? 0 : ($num_stamps - $max_stamps);
+$start_pt = $num_stamps;
+
+if ($num_stamps >= $max_stamps) {
+  //  echo "unlinking <br\>";
+  $start_pt = 0;
+  unlink($timestamp_log);
+}
+
+//echo "start at ".$start_pt."<br/>";
+for ($i=$st; $i < $num_stamps; $i++) {
+  //  echo $timestamps[$i]."<---".$i."<br/>"."\n";
+  if (($i >= $start_pt)) {
+    file_put_contents($timestamp_log, ((file_exists($timestamp_log)) ? "\n" : "").$timestamps[$i], FILE_APPEND);
+  }
+}
 
 //$url = 'https://api.pushover.net/1/messages.json'.'?token='.'adnnmc76K9ea4E96U1sLQv2CLobyFo'.'&user='.'u7hLeioVq2SJaCEbeDnFhEggw4GL6e'.'&title='.'php'.'&message='.'hello';
 
